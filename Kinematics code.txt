@@ -1,0 +1,66 @@
+#include <Servo.h>
+float Q1,Q2,X,Y,Q;
+float L1 = 3;
+float L2 = 6;
+float Pi = 3.141592;
+const float RAD2DEG = 180.0f / PI;
+const float DEG2RAD = PI / 180.0f;
+int Choice;
+Servo servo_5;
+Servo servo_6;
+void setup()
+{
+  Serial.begin(9600);
+  servo_5.attach(5);
+
+  servo_6.attach(6);
+
+}
+
+void loop()
+{ Serial.println("Choose 1 for forward Kinematics and 2 for Inverse kinematics. ");
+ while(Serial.available() == 0){} 
+ Choice = Serial.parseInt();
+ if (Choice == 1){
+    Serial.println("Enter Angel 1 ");
+   while(Serial.available() == 0){};
+      Q1 = Serial.parseFloat()* DEG2RAD;
+  Serial.println("Enter Angel 2 ");
+   while(Serial.available() == 0){};
+  Q2 = Serial.parseFloat() * DEG2RAD;
+  X = L1 * cos(Q1) + L2 * cos(Q1+Q2);
+  Y = L1 * sin(Q1) + L2 * sin(Q1+Q2);
+  Serial.println("The X and Y Values are:");
+  Serial.print("( ");
+    Serial.print(X);
+  Serial.print(" , ");
+  Serial.print(Y);
+  Serial.println(" )");
+   Q1 = Q1 * RAD2DEG;
+    Q2 = Q2 * RAD2DEG;
+  servo_5.write(Q1);
+  servo_6.write(Q2);}
+  
+  
+ else if (Choice == 2){
+  Serial.println("Enter X ");
+   while(Serial.available() == 0){};
+      X = Serial.parseFloat();
+  Serial.println("Enter Y ");
+   while(Serial.available() == 0){};
+  Y = Serial.parseFloat();
+  Q2 = acos(( X * X + Y * Y - L1 * L1 - L2 * L2) / (2 * L1 * L2 )) ;
+  Q  = atan(Y/X) * RAD2DEG;
+  Q1 = (Q) - (atan((L2*sin(Q2))/(L1+L2*cos(Q2)))* RAD2DEG ) ;
+  Q2 = Q2 * RAD2DEG; 
+  Serial.print("Angel 1 = ");
+  Serial.println(Q1);
+  Serial.print("Angel 2 = ");
+  Serial.println(Q2);
+   servo_5.write(Q1);
+   servo_6.write(Q2);
+   }
+ else {
+   Serial.println("Invalid choice!");
+ }
+}
